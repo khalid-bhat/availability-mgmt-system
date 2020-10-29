@@ -28,3 +28,14 @@ Route::post('/post-api',[Apis::class,'postApi']);
 Route::get('/taskList',[Apis::class,'getTaskList']); 
 
 Route::get('/singleTask/{id}',[Apis::class,'getSingleTaskList']); 
+
+//// PASSPORT //////
+
+
+Route::post('/register',[Apis::class,'register']); 
+
+Route::post('/login',[Apis::class,'login']);
+
+Route::get('/login',[Apis::class,'login'])->name('login');
+
+Route::middleware('auth:api')->get('/details',[Apis::class,'getTaskList'] );
