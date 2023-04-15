@@ -1,8 +1,10 @@
 <?php
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route; 
-use App\Http\Controllers\Apis; 
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Apis;
+use App\Http\Controllers\AvailableTimeSlotController;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -18,24 +20,23 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-
-Route::get('/first-api',[Apis::class,'firstApi']); 
-
-Route::get('/second-api/{id}',[Apis::class,'secondApi']); 
-
-Route::post('/post-api',[Apis::class,'postApi']); 
-
-Route::get('/taskList',[Apis::class,'getTaskList']); 
-
-Route::get('/singleTask/{id}',[Apis::class,'getSingleTaskList']); 
-
-//// PASSPORT //////
-
-
-Route::post('/register',[Apis::class,'register']); 
-
-Route::post('/login',[Apis::class,'login']);
+//// login and register //////
+Route::post('/register',[Apis::class,'register']);
 
 Route::get('/login',[Apis::class,'login'])->name('login');
 
-Route::middleware('auth:api')->get('/details',[Apis::class,'getTaskList'] );
+// Doctor APIs
+Route::middleware(['auth:api','user-role:doctor'])->group(function()
+{
+    Route::post('/save-availability', [AvailableTimeSlotController::class,'store']);
+    Route::post('/update-availability', [AvailableTimeSlotController::class,'update']);
+
+});
+
+Route::get('/check-availability', [AvailableTimeSlotController::class,'getAvailabilityForPatient']);
+
+// Patient APIs
+Route::middleware(['auth:api','user-role:patient'])->group(function()
+{
+});
+

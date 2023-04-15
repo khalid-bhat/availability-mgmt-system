@@ -26,7 +26,7 @@ class Apis extends Controller
             'data'=>'22',
             'params1'=>$request->get('name'),
             'params2'=>$request->get('type')
-        ]; 
+        ];
         return response()->json($responseArray,200);
     }
 
@@ -34,7 +34,7 @@ class Apis extends Controller
         $responseArray = [
             'status'=>'ok',
             'data'=>$id
-        ]; 
+        ];
         return response()->json($responseArray,200);
     }
 
@@ -44,18 +44,18 @@ class Apis extends Controller
             'status'=>'ok',
             'data'=>'s',
             'name'=>$request->post('name'),
-            'lastname'=>$request->post('lastname') 
+            'lastname'=>$request->post('lastname')
 
-        ]; 
+        ];
         return response()->json($responseArray,200);
     }
-    
+
     public function getTaskList(){
         $data =  Task::all();
         $responseArray = [
             'status'=>'ok',
             'data'=>$data
-        ]; 
+        ];
         return response()->json($responseArray,200);
     }
 
@@ -67,52 +67,61 @@ class Apis extends Controller
         $responseArray = [
             'status'=>'ok',
             'data'=>$data
-        ]; 
+        ];
         return response()->json($responseArray,200);
     }
-    
+
 
     ////// PASSPORT LOGIN & REGISTER /////////////
 
-    public function register(Request $request){ 
+    public function register(Request $request){
 
         $validator = Validator::make($request->all(),[
             'name'=>'required',
-            'email'=>'required|email',
+            'email'=>'required|email|unique:users,email',
+            'role'=> 'required|numeric|in:0,1',
             'password'=>'required',
             'c_password'=>'required|same:password'
-        ]);
+        ],
+        [
+            'role.in' => 'The Role must be either 0 for Patient or 1 for Doctor'
+        ]
+    );
 
         if($validator->fails()){
             return response()->json($validator->errors(),202);
         }
-        $input = $request->all();
-        $input['password'] = bcrypt($input['password']);
 
-        $user = User::create($input);
+        $user = new User();
+        $user->name = $request->input('name');
+        $user->email = $request->input('email');
+        $user->password = bcrypt($request->input('password'));
+        $user->role = $request->input('role');
+
+        $user->save();
 
         $responseArray = [];
         $responseArray['token'] = $user->createToken('MyApp')->accessToken;
         $responseArray['name'] = $user->name;
-        
-        return response()->json($responseArray,200);  
+
+        return response()->json($responseArray,200);
     }
 
     /// login //////
 
-    public function login(Request $request){ 
+    public function login(Request $request){
         if(Auth::attempt(['email'=>$request->email,'password'=>$request->password])){
             $user = Auth::user();
             $responseArray = [];
             $responseArray['token'] = $user->createToken('MyApp')->accessToken;
             $responseArray['name'] = $user->name;
-            
+
             return response()->json($responseArray,200);
 
         }else{
             return response()->json(['error'=>'Unauthenticated'],203);
         }
     }
- 
-    
+
+
 }
