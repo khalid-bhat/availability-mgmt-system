@@ -2,7 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Apis;
+use App\Http\Controllers\AuthenticationController;
 use App\Http\Controllers\AvailableTimeSlotController;
 
 /*
@@ -21,9 +21,9 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 //// login and register //////
-Route::post('/register',[Apis::class,'register']);
+Route::post('/register',[AuthenticationController::class,'register']);
 
-Route::get('/login',[Apis::class,'login'])->name('login');
+Route::get('/login',[AuthenticationController::class,'login'])->name('login');
 
 // Doctor APIs
 Route::middleware(['auth:api','user-role:doctor'])->group(function()
